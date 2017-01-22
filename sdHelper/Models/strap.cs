@@ -312,24 +312,16 @@ namespace sdHelper.Models
             var url = "https://github.com/nedwill/soundhax/raw/master/soundhax-" + region + "-" + console + ".m4a";
             var filename = "soundhax-" + region + "-" + console + ".m4a";
             strap.download_from_url(url, folder, filename);
-            Directory.Move(server.MapPath("~/temp/" + folder + "/downloads/" + filename), server.MapPath("~/temp/" + folder + "/" + filename));
+            Directory.Move(server.MapPath("~/temp/" + "downloads" + folder + "/" + filename), server.MapPath("~/temp/" + folder + "/" + filename));
         }
 
         //Extracts zip file
-         public static void extract_zip(string filename, string folder, bool erase)
+         public static void extract_zip(string filename, string folder)
         {
-            string zipPath = HttpContext.Current.Server.MapPath("~/temp/" + folder + "/downloads/" + filename);
+            string zipPath = HttpContext.Current.Server.MapPath("~/temp/" + "downloads" + folder + "/" + filename);
             string extractPath = HttpContext.Current.Server.MapPath("~/temp/" + folder + "/");
 
             ZipFile.ExtractToDirectory(zipPath, extractPath);
-
-            switch (erase)
-            {
-                case true:
-                    File.Delete(zipPath);
-                    break;
-            }
-
             
         }
 
@@ -338,7 +330,7 @@ namespace sdHelper.Models
         {
             using (WebClient webClient = new WebClient())
             {
-                var path = HttpContext.Current.Server.MapPath("~/temp/" + folder + "/downloads/" + filename);
+                var path = HttpContext.Current.Server.MapPath("~/temp/" + "downloads" + folder + "/" + filename);
                 webClient.DownloadFile(url, path);
                 
             }
@@ -359,14 +351,14 @@ namespace sdHelper.Models
 
             strap.payload_url(req_data, stamp);
             strap.download_soundhax(req_data, stamp);
-            if (!File.Exists(server.MapPath("~/temp/" + stamp + "/downloads/starter.zip")))
+            if (!File.Exists(server.MapPath("~/temp/" + "downloads" + stamp + "/starter.zip")))
             {
                 download_from_url("http://smealum.github.io/ninjhax2/starter.zip", stamp, "starter.zip");
             }
-            strap.extract_zip("starter.zip", stamp, true);
+            strap.extract_zip("starter.zip", stamp);
             Directory.Move(server.MapPath("~/temp/" + stamp + "/starter/3ds"), server.MapPath("~/temp/" + stamp + "/3ds"));
             Directory.Move(server.MapPath("~/temp/" + stamp + "/starter/boot.3dsx"), server.MapPath("~/temp/" + stamp + "/boot.3dsx"));
-            Directory.Move(server.MapPath("~/temp/" + stamp + "/downloads/otherapp.bin"), server.MapPath("~/temp/" + stamp + "/otherapp.bin"));
+            Directory.Move(server.MapPath("~/temp/" + "downloads" + stamp + "/otherapp.bin"), server.MapPath("~/temp/" + stamp + "/otherapp.bin"));
             Directory.Delete(server.MapPath("~/temp/" + stamp + "/starter"));
         }
 
@@ -385,7 +377,7 @@ namespace sdHelper.Models
         public static void extract_file(string zip,string filename_input,string filename_output,string folder,string stamp)
         {
             var server = HttpContext.Current.Server;
-            using (ZipArchive archive = ZipFile.OpenRead(server.MapPath("~/temp/" + stamp + "/downloads/" + zip)))
+            using (ZipArchive archive = ZipFile.OpenRead(server.MapPath("~/temp/" + "downloads" + stamp + "/" + zip)))
             {
                 foreach (ZipArchiveEntry entry in archive.Entries)
                 {
@@ -401,8 +393,6 @@ namespace sdHelper.Models
         public static HttpResponseMessage pack(string name){
             HttpResponseMessage httpResponseMessage = new HttpResponseMessage();
             var path = HttpContext.Current.Server.MapPath("~/temp/");
-
-            File.Delete(path + "downloads");
 
             ZipFile.CreateFromDirectory(path + name, path + name + ".zip");
             string filename = name + ".zip";

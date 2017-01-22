@@ -23,7 +23,7 @@ namespace sdHelper.Controllers
             string stamp = A.ToString("X");
 
             Directory.CreateDirectory(HttpContext.Current.Server.MapPath("~/temp/" + stamp));
-            Directory.CreateDirectory(HttpContext.Current.Server.MapPath("~/temp/" + stamp + "/downloads"));
+            Directory.CreateDirectory(HttpContext.Current.Server.MapPath("~/temp/" + "downloads" + stamp));
 
             for (int i = 0; i < step_list.Count; i++)
             {
