@@ -272,7 +272,7 @@ namespace sdHelper.Models
         //Concatenates soundhax url and downloads the file
          public static void download_soundhax(dynamic req_data, string folder)
         {
-            var server = HttpContext.Current.Server;
+            var server = HttpContext.Current.Server.MapPath("~/temp/");
 
             String console = req_data["0"].Value.ToString();
             String region = req_data["5"].Value.ToString();
@@ -312,14 +312,14 @@ namespace sdHelper.Models
             var url = "https://github.com/nedwill/soundhax/raw/master/soundhax-" + region + "-" + console + ".m4a";
             var filename = "soundhax-" + region + "-" + console + ".m4a";
             strap.download_from_url(url, folder, filename);
-            Directory.Move(server.MapPath("~/temp/" + "downloads" + folder + "/" + filename), server.MapPath("~/temp/" + folder + "/" + filename));
+            Directory.Move(server + "downloads" + folder + "/" + filename, server + folder + "/" + filename);
         }
 
         //Extracts zip file
          public static void extract_zip(string filename, string folder)
         {
-            string zipPath = HttpContext.Current.Server.MapPath("~/temp/" + "downloads" + folder + "/" + filename);
-            string extractPath = HttpContext.Current.Server.MapPath("~/temp/" + folder + "/");
+            string zipPath = HttpContext.Current.Server.MapPath("~/temp/") + "downloads" + folder + "/" + filename;
+            string extractPath = HttpContext.Current.Server.MapPath("~/temp/") + folder + "/";
 
             ZipFile.ExtractToDirectory(zipPath, extractPath);
             
@@ -330,7 +330,7 @@ namespace sdHelper.Models
         {
             using (WebClient webClient = new WebClient())
             {
-                var path = HttpContext.Current.Server.MapPath("~/temp/" + "downloads" + folder + "/" + filename);
+                var path = HttpContext.Current.Server.MapPath("~/temp/") + "downloads" + folder + "/" + filename;
                 webClient.DownloadFile(url, path);
                 
             }
@@ -347,43 +347,46 @@ namespace sdHelper.Models
         //Sets soundhax as hb entrypoint
         public static void soundhax_step(dynamic req_data, string stamp)
         {
-            var server = HttpContext.Current.Server;
+            var server = HttpContext.Current.Server.MapPath("~/temp/");
 
             strap.payload_url(req_data, stamp);
             strap.download_soundhax(req_data, stamp);
-            if (!File.Exists(server.MapPath("~/temp/" + "downloads" + stamp + "/starter.zip")))
+            if (!File.Exists(server + "downloads" + stamp + "/starter.zip"))
             {
                 download_from_url("http://smealum.github.io/ninjhax2/starter.zip", stamp, "starter.zip");
             }
             strap.extract_zip("starter.zip", stamp);
-            Directory.Move(server.MapPath("~/temp/" + stamp + "/starter/3ds"), server.MapPath("~/temp/" + stamp + "/3ds"));
-            Directory.Move(server.MapPath("~/temp/" + stamp + "/starter/boot.3dsx"), server.MapPath("~/temp/" + stamp + "/boot.3dsx"));
-            Directory.Move(server.MapPath("~/temp/" + "downloads" + stamp + "/otherapp.bin"), server.MapPath("~/temp/" + stamp + "/otherapp.bin"));
-            Directory.Delete(server.MapPath("~/temp/" + stamp + "/starter"));
+            Directory.Move(server + stamp + "/starter/3ds", server + stamp + "/3ds");
+            Directory.Move(server + stamp + "/starter/boot.3dsx", server + stamp + "/boot.3dsx");
+            Directory.Move(server + "downloads" + stamp + "/otherapp.bin", server + stamp + "/otherapp.bin");
+            Directory.Delete(server + stamp + "/starter");
         }
 
         //Sets everything ready to run decrypt9 from hbl
         public static async Task d9_hb(string stamp)
         {
-            var server = HttpContext.Current.Server;
+            var server = HttpContext.Current.Server.MapPath("~/temp/");
 
-            Directory.CreateDirectory(server.MapPath("~/temp/" + stamp + "/files9"));
-            var url = await strap.repo_url("d0k3", "Decrypt9WIP");
-            download_from_url(url, stamp, "d9.zip");
+            Directory.CreateDirectory(server + stamp + "/files9");
+            download_from_url(await strap.repo_url("TiniVi", "safehax"), stamp, "safehax.3dsx");
+            download_from_url(await strap.repo_url("nedwill", "fasthax"), stamp, "fasthax.3dsx");
+            download_from_url(await strap.repo_url("d0k3", "Decrypt9WIP"), stamp, "d9.zip");
             extract_file("d9.zip", "Decrypt9WIP.bin", "safehaxpayload.bin", "", stamp);
+            Directory.Move(server + "downloads" + stamp + "/safehax.3dsx", server + stamp + "/3ds/safehax.3dsx");
+            Directory.Move(server + "downloads" + stamp + "/fasthax.3dsx", server + stamp + "/3ds/fasthax.3dsx");
         }
 
         //Extracts desired file to a path
         public static void extract_file(string zip,string filename_input,string filename_output,string folder,string stamp)
         {
-            var server = HttpContext.Current.Server;
-            using (ZipArchive archive = ZipFile.OpenRead(server.MapPath("~/temp/" + "downloads" + stamp + "/" + zip)))
+            var server = HttpContext.Current.Server.MapPath("~/temp/");
+            using (ZipArchive archive = ZipFile.OpenRead(server + "downloads" + stamp + "/" + zip))
             {
                 foreach (ZipArchiveEntry entry in archive.Entries)
                 {
                     if (entry.FullName == filename_input)
                     {
-                        entry.ExtractToFile(Path.Combine(server.MapPath("~/temp/" + stamp + "/" + folder), filename_output), true);
+                        entry.ExtractToFile(Path.Combine(server + stamp + "/" + folder, filename_output), true);
                     }
                 }
             }
@@ -396,7 +399,7 @@ namespace sdHelper.Models
 
             ZipFile.CreateFromDirectory(path + name, path + name + ".zip");
             string filename = name + ".zip";
-            string filePath = HttpContext.Current.Server.MapPath("~/temp/") + filename;
+            string filePath = path + filename;
 
 
             using (MemoryStream ms = new MemoryStream())

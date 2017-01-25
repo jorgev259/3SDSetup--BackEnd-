@@ -43,8 +43,8 @@ namespace sdHelper.Controllers
 
             return response;
 
-            File.Delete(HttpContext.Current.Server.MapPath("~/temp/" + stamp));
-            File.Delete(HttpContext.Current.Server.MapPath("~/temp/" + stamp + ".zip"));
+           // File.Delete(HttpContext.Current.Server.MapPath("~/temp/" + stamp));
+           // File.Delete(HttpContext.Current.Server.MapPath("~/temp/" + stamp + ".zip"));
 
         }
     }
