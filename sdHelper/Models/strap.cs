@@ -352,11 +352,20 @@ namespace sdHelper.Models
         }
 
         //Get latest release url from github repo
-        public static async Task<String> repo_url(string author, string repo)
+        public static async Task<String> repo_url(string author, string repo, string file)
         {
             var client = new GitHubClient(new Octokit.ProductHeaderValue("my-cool-app"));
             var releases = await client.Repository.Release.GetAll(author, repo);
-            return releases[0].Assets[0].BrowserDownloadUrl;
+            var url = "";
+            for(int i = 0; i < releases[0].Assets.Count(); i++)
+            {
+                if (releases[0].Assets[i].BrowserDownloadUrl.Contains(file))
+                {
+                    url = releases[0].Assets[i].BrowserDownloadUrl;
+                    i = releases[0].Assets.Count();
+                }
+            }
+            return url;
         }
 
         //Sets soundhax as hb entrypoint
@@ -408,6 +417,8 @@ namespace sdHelper.Models
             download_from_url(await repo_url("AuroraWright", "arm9loaderhax"), stamp, "a9lhrelease.7z");
             download_from_url(await repo_url("yellows8", "hblauncher_loader"), stamp, "hblauncher_loader.zip");
             download_from_url(await repo_url("Hamcha", "lumaupdate"), stamp, "lumaupdater.zip");
+            download_from_url(await repo_url("Steveice10", "FBI"), stamp, "lumaupdater.zip");
+
 
             extract_7z("a9lhinstaller.7z", stamp);
             extract_7z("a9lhrelease.7z", stamp + "/a9lh");
