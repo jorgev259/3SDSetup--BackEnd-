@@ -36,6 +36,9 @@ namespace sdHelper.Controllers
                     case "d9(hb)":
                         await strap.d9_hb(stamp);
                         break;
+                    case "install":
+                        await strap.install(stamp,req_data);
+                        break;
                 }
             }
 

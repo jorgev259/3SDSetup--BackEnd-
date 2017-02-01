@@ -1,4 +1,5 @@
 ﻿using Octokit;
+using SevenZip;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -325,6 +326,20 @@ namespace sdHelper.Models
             
         }
 
+        public static void extract_7z(string filename, string folder)
+        {
+            string zipPath = HttpContext.Current.Server.MapPath("~/temp/") + "downloads" + folder + "/" + filename;
+            string extractPath = HttpContext.Current.Server.MapPath("~/temp/") + folder;
+
+            SevenZipBase.SetLibraryPath(HttpContext.Current.Server.MapPath("~/Scripts/7za.dll"));
+
+            using (var file = new SevenZipExtractor(zipPath))
+            {
+                file.ExtractArchive(extractPath);
+            }
+
+        }
+
         //Downloads file from specififed route and saves it on temporary folder
          public static void download_from_url(String url, String folder, String filename)
         {
@@ -374,6 +389,29 @@ namespace sdHelper.Models
             extract_file("d9.zip", "Decrypt9WIP.bin", "safehaxpayload.bin", "", stamp);
             Directory.Move(server + "downloads" + stamp + "/safehax.3dsx", server + stamp + "/3ds/safehax.3dsx");
             Directory.Move(server + "downloads" + stamp + "/fasthax.3dsx", server + stamp + "/3ds/fasthax.3dsx");
+        }
+
+        //Sets all the files needed to install a9lh with Luma
+        public static async Task install(String stamp, dynamic req_data)
+        {
+            var server = HttpContext.Current.Server.MapPath("~/temp/");
+
+            Directory.CreateDirectory(server + stamp + "/cias");
+            Directory.CreateDirectory(server + stamp + "/a9lh");
+
+            if (!Directory.Exists(server + stamp + "/3ds"))
+            {
+                soundhax_step(req_data, stamp);
+            }
+
+            download_from_url(await repo_url("Plailect", "SafeA9LHInstaller"), stamp, "a9lhinstaller.7z");
+            download_from_url(await repo_url("AuroraWright", "arm9loaderhax"), stamp, "a9lhrelease.7z");
+            download_from_url(await repo_url("yellows8", "hblauncher_loader"), stamp, "hblauncher_loader.zip");
+            download_from_url(await repo_url("Hamcha", "lumaupdate"), stamp, "lumaupdater.zip");
+
+            extract_7z("a9lhinstaller.7z", stamp);
+            extract_7z("a9lhrelease.7z", stamp + "/a9lh");
+
         }
 
         //Extracts desired file to a path
