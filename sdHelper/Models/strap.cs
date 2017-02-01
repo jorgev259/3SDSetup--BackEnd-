@@ -352,19 +352,27 @@ namespace sdHelper.Models
         }
 
         //Get latest release url from github repo
-        public static async Task<String> repo_url(string author, string repo, string file)
+        public static async Task<String> repo_url(string author, string repo, Object file)
         {
             var client = new GitHubClient(new Octokit.ProductHeaderValue("my-cool-app"));
             var releases = await client.Repository.Release.GetAll(author, repo);
             var url = "";
-            for(int i = 0; i < releases[0].Assets.Count(); i++)
+            if (file is bool || releases[0].Assets.Count() == 1)
             {
-                if (releases[0].Assets[i].BrowserDownloadUrl.Contains(file))
+                url = releases[0].Assets[0].BrowserDownloadUrl;
+            }
+            else if(file is String)
+            {
+                for (int i = 0; i < releases[0].Assets.Count(); i++)
                 {
-                    url = releases[0].Assets[i].BrowserDownloadUrl;
-                    i = releases[0].Assets.Count();
+                    if (releases[0].Assets[i].BrowserDownloadUrl.Contains(file.ToString()))
+                    {
+                        url = releases[0].Assets[i].BrowserDownloadUrl;
+                        i = releases[0].Assets.Count();
+                    }
                 }
             }
+            
             return url;
         }
 
@@ -392,9 +400,9 @@ namespace sdHelper.Models
             var server = HttpContext.Current.Server.MapPath("~/temp/");
 
             Directory.CreateDirectory(server + stamp + "/files9");
-            download_from_url(await strap.repo_url("TiniVi", "safehax"), stamp, "safehax.3dsx");
-            download_from_url(await strap.repo_url("nedwill", "fasthax"), stamp, "fasthax.3dsx");
-            download_from_url(await strap.repo_url("d0k3", "Decrypt9WIP"), stamp, "d9.zip");
+            download_from_url(await strap.repo_url("TiniVi", "safehax", false), stamp, "safehax.3dsx");
+            download_from_url(await strap.repo_url("nedwill", "fasthax", false), stamp, "fasthax.3dsx");
+            download_from_url(await strap.repo_url("d0k3", "Decrypt9WIP",".zip"), stamp, "d9.zip");
             extract_file("d9.zip", "Decrypt9WIP.bin", "safehaxpayload.bin", "", stamp);
             Directory.Move(server + "downloads" + stamp + "/safehax.3dsx", server + stamp + "/3ds/safehax.3dsx");
             Directory.Move(server + "downloads" + stamp + "/fasthax.3dsx", server + stamp + "/3ds/fasthax.3dsx");
@@ -413,11 +421,11 @@ namespace sdHelper.Models
                 soundhax_step(req_data, stamp);
             }
 
-            download_from_url(await repo_url("Plailect", "SafeA9LHInstaller"), stamp, "a9lhinstaller.7z");
-            download_from_url(await repo_url("AuroraWright", "arm9loaderhax"), stamp, "a9lhrelease.7z");
-            download_from_url(await repo_url("yellows8", "hblauncher_loader"), stamp, "hblauncher_loader.zip");
-            download_from_url(await repo_url("Hamcha", "lumaupdate"), stamp, "lumaupdater.zip");
-            download_from_url(await repo_url("Steveice10", "FBI"), stamp, "lumaupdater.zip");
+            download_from_url(await repo_url("Plailect", "SafeA9LHInstaller", false), stamp, "a9lhinstaller.7z");
+            download_from_url(await repo_url("AuroraWright", "arm9loaderhax", false), stamp, "a9lhrelease.7z");
+            download_from_url(await repo_url("yellows8", "hblauncher_loader", false), stamp, "hblauncher_loader.zip");
+            download_from_url(await repo_url("Hamcha", "lumaupdate", ".cia"), stamp, "lumaupdater.zip");
+            download_from_url(await repo_url("Steveice10", "FBI",".cia"), stamp, "lumaupdater.zip");
 
 
             extract_7z("a9lhinstaller.7z", stamp);
