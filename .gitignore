@@ -303,3 +303,4 @@ $RECYCLE.BIN/
 *.lnk
 
 temp/
+sdHelper/Models/strap.cs
