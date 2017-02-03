@@ -326,9 +326,9 @@ namespace sdHelper.Models
             
         }
 
-        public static void extract_7z(string filename, string folder)
+        public static void extract_7z(string filename, string folder, string stamp)
         {
-            string zipPath = HttpContext.Current.Server.MapPath("~/temp/") + "downloads" + folder + "/" + filename;
+            string zipPath = HttpContext.Current.Server.MapPath("~/temp/") + "downloads" + stamp + "/" + filename;
             string extractPath = HttpContext.Current.Server.MapPath("~/temp/") + folder;
 
             SevenZipBase.SetLibraryPath(HttpContext.Current.Server.MapPath("~/Scripts/7za.dll"));
@@ -354,7 +354,9 @@ namespace sdHelper.Models
         //Get latest release url from github repo
         public static async Task<String> repo_url(string author, string repo, Object file)
         {
-            var client = new GitHubClient(new Octokit.ProductHeaderValue("my-cool-app"));
+            //Add your own client github credentials
+            client.Credentials = tokenAuth;
+
             var releases = await client.Repository.Release.GetAll(author, repo);
             var url = "";
             if (file is bool || releases[0].Assets.Count() == 1)
@@ -403,7 +405,7 @@ namespace sdHelper.Models
             download_from_url(await strap.repo_url("TiniVi", "safehax", false), stamp, "safehax.3dsx");
             download_from_url(await strap.repo_url("nedwill", "fasthax", false), stamp, "fasthax.3dsx");
             download_from_url(await strap.repo_url("d0k3", "Decrypt9WIP",".zip"), stamp, "d9.zip");
-            extract_file("d9.zip", "Decrypt9WIP.bin", "safehaxpayload.bin", "", stamp);
+            extract_file("d9.zip", "Decrypt9WIP.bin", "safehaxpayload.bin", "", stamp, "zip");
             Directory.Move(server + "downloads" + stamp + "/safehax.3dsx", server + stamp + "/3ds/safehax.3dsx");
             Directory.Move(server + "downloads" + stamp + "/fasthax.3dsx", server + stamp + "/3ds/fasthax.3dsx");
         }
@@ -415,6 +417,7 @@ namespace sdHelper.Models
 
             Directory.CreateDirectory(server + stamp + "/cias");
             Directory.CreateDirectory(server + stamp + "/a9lh");
+            Directory.CreateDirectory(server + stamp + "/luma/payloads");
 
             if (!Directory.Exists(server + stamp + "/3ds"))
             {
@@ -424,30 +427,44 @@ namespace sdHelper.Models
             download_from_url(await repo_url("Plailect", "SafeA9LHInstaller", false), stamp, "a9lhinstaller.7z");
             download_from_url(await repo_url("AuroraWright", "arm9loaderhax", false), stamp, "a9lhrelease.7z");
             download_from_url(await repo_url("yellows8", "hblauncher_loader", false), stamp, "hblauncher_loader.zip");
-            download_from_url(await repo_url("Hamcha", "lumaupdate", ".cia"), stamp, "lumaupdater.zip");
-            download_from_url(await repo_url("Steveice10", "FBI",".cia"), stamp, "lumaupdater.zip");
+            download_from_url(await repo_url("Hamcha", "lumaupdate", ".cia"), stamp, "lumaupdater.cia");
+            download_from_url(await repo_url("Steveice10", "FBI",".cia"), stamp, "FBI.cia");
+            download_from_url(await repo_url("AuroraWright", "Luma3DS", false), stamp, "luma.7z");
+            download_from_url(await repo_url("d0k3", "Hourglass9", ".zip"), stamp, "Hourglass9.zip");
+            download_from_url(await repo_url("Cruel", "DspDump", false), stamp, "DspDump.3dsx");
 
 
-            extract_7z("a9lhinstaller.7z", stamp);
-            extract_7z("a9lhrelease.7z", stamp + "/a9lh");
+            extract_7z("a9lhinstaller.7z", stamp,stamp);
+            extract_7z("a9lhrelease.7z", stamp + "\\a9lh", stamp);
+            extract_file("hblauncher_loader.zip", "hblauncher_loader.cia", "hblauncher_loader.cia", "cias", stamp, "zip");
+            Directory.Move(server + "downloads" + stamp + "/lumaupdater.cia",server + stamp + "/cias/lumaupdater.cia");
+            Directory.Move(server + "downloads" + stamp + "/FBI.cia", server + stamp + "/cias/FBI.cia");
 
+            //Luma arm9loaderhax.bin
+            extract_7z("luma.7z", "downloads" + stamp + "\\luma", stamp);
+            File.Delete(server + stamp + "/arm9loaderhax.bin");
+            Directory.Move(server + "downloads" + stamp + "/luma/arm9loaderhax.bin", server + stamp + "/arm9loaderhax.bin");
+
+            extract_file("Hourglass9.zip", "Hourglass9.bin", "start_Hourglass9.bin", "luma/payloads",stamp,"zip");
+            Directory.Move(server + "downloads" + stamp + "/DspDump.3dsx", server + stamp + "/3ds/DspDump.3dsx");
         }
 
         //Extracts desired file to a path
-        public static void extract_file(string zip,string filename_input,string filename_output,string folder,string stamp)
+        public static void extract_file(string zip, string filename_input, string filename_output, string folder, string stamp, string type)
         {
             var server = HttpContext.Current.Server.MapPath("~/temp/");
-            using (ZipArchive archive = ZipFile.OpenRead(server + "downloads" + stamp + "/" + zip))
-            {
-                foreach (ZipArchiveEntry entry in archive.Entries)
+                using (ZipArchive archive = ZipFile.OpenRead(server + "downloads" + stamp + "/" + zip))
                 {
-                    if (entry.FullName == filename_input)
+                    foreach (ZipArchiveEntry entry in archive.Entries)
                     {
-                        entry.ExtractToFile(Path.Combine(server + stamp + "/" + folder, filename_output), true);
+                        if (entry.FullName == filename_input)
+                        {
+                            entry.ExtractToFile(Path.Combine(server + stamp + "/" + folder, filename_output), true);
+                        }
                     }
                 }
-            }
         }
+
 
         //Packs the folder to a .zip file
         public static HttpResponseMessage pack(string name){

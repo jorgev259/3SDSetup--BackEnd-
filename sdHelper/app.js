@@ -1,4 +1,5 @@
-﻿'use strict';
+﻿/// <reference path="C:\Users\Andres Vargas\documents\visual studio 2015\Projects\sdHelper\sdHelper\test.html" />
+'use strict';
 
 angular.module("SDHelper", [])
 
@@ -12,7 +13,7 @@ angular.module("SDHelper", [])
                 method: 'GET',
                 url: 'api/handler',
                 responseType: 'arraybuffer',
-                params: { ver: ver_data, step: step_list }
+                params: { ver: ver_data, step: step_list },
             }).success(function (data, status, headers) {
                 headers = headers();
 
@@ -27,12 +28,17 @@ angular.module("SDHelper", [])
                     linkElement.setAttribute('href', url);
                     linkElement.setAttribute("download", filename);
 
+                    sessionStorage.stamp = filename;
+                    console.log(sessionStorage.stamp);
+
                     var clickEvent = new MouseEvent("click", {
                         "view": window,
                         "bubbles": true,
                         "cancelable": false
                     });
                     linkElement.dispatchEvent(clickEvent);
+
+                    cleanup();
                 } catch (ex) {
                     console.log(ex);
                 }
@@ -41,6 +47,8 @@ angular.module("SDHelper", [])
             });
         }   
     };
+
+    
 }]);
 
 function serializeForm() {
@@ -54,6 +62,19 @@ function serializeForm() {
     console.log(data);
     return data;
 }
+
+function cleanup() {
+    $.ajax({
+        url: "/api/cleaner/", // be consistent and case the route the same as the ApiController
+        type: "POST",
+        dataType: 'json',
+        data: "=" + sessionStorage.stamp, // add an = sign
+        success: function (result) {
+            console.log(result);
+        },
+    });
+}
+
 $(document).ready(function () {
     var i=0;
     for(i=1;i<=11;i++){

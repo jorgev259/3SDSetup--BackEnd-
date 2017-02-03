@@ -1,4 +1,4 @@
-﻿function set_step_list() {
+function set_step_list() {
     var ver_data = serializeForm();
     var console = ver_data[0];
     var vers = Number(ver_data[1] + ver_data[2] + ver_data[3]);
@@ -9,7 +9,7 @@
     //Hard-coded, will make it updatable later on
     switch(console){
         case "OLD":
-            if (vers >= 900) {
+            if (vers >= 900 && vers <= 1120) {
                 //Soundhax
                 step_list.push("soundhax");
                 //d9 (hb)
@@ -57,7 +57,21 @@
             break;
 
         case "NEW":
-            compatible = false;
+            if (vers >= 900 && vers <= 1120) {
+                //Soundhax
+                step_list.push("soundhax");
+                //d9 (hb)
+                step_list.push("d9(hb)");
+                //ctr
+                step_list.push("2.1_ctr");
+                //arm9
+                step_list.push("install");
+            }
+
+            if (vers == 810) {
+                compatible = false;
+            }
+
             break;
     }
 
