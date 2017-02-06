@@ -5,22 +5,25 @@ using System.Net.Http;
 using System.Web;
 using System.Web.Http;
 using sdHelper.Models;
+using System.Web.Http.Cors;
+
 
 namespace sdHelper.Controllers
 {
+    //[EnableCors(origins: "*", headers: "*", methods: "*")]
     public class handlerController : ApiController
     {
         [HttpGet]
-        public async System.Threading.Tasks.Task<HttpResponseMessage> Get(String ver, String step)
+        public async System.Threading.Tasks.Task<HttpResponseMessage> Get(String ver, String step, String stamp)
         {
             var server = HttpContext.Current.Server;
             var Request = HttpContext.Current.Request;
             var req_data = JsonConvert.DeserializeObject<dynamic>(ver);
             var step_list = JsonConvert.DeserializeObject<dynamic>(step);
 
-            var r = new Random();
-            int A = r.Next(1000, 5000);
-            string stamp = A.ToString("X");
+            //var r = new Random();
+            //int A = r.Next(1000, 5000);
+            //string stamp = A.ToString("X");
 
             Directory.CreateDirectory(HttpContext.Current.Server.MapPath("~/temp/" + stamp));
             Directory.CreateDirectory(HttpContext.Current.Server.MapPath("~/temp/" + "downloads" + stamp));

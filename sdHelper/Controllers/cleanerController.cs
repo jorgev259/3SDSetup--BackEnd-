@@ -19,9 +19,8 @@ namespace sdHelper.Controllers
 
             try{
                 var server = HttpContext.Current.Server.MapPath("~/temp/");
-                var folder = stamp.Remove(stamp.Length - 4);
-                Directory.Delete(server + "downloads" + folder, true);
-                Directory.Delete(server + folder, true);
+                Directory.Delete(server + "downloads" + stamp, true);
+                Directory.Delete(server + stamp, true);
                 File.Delete(server + stamp);
             }
             catch (Exception e)
