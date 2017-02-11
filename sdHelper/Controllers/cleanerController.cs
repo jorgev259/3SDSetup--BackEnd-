@@ -21,7 +21,7 @@ namespace sdHelper.Controllers
                 var server = HttpContext.Current.Server.MapPath("~/temp/");
                 Directory.Delete(server + "downloads" + stamp, true);
                 Directory.Delete(server + stamp, true);
-                File.Delete(server + stamp);
+                File.Delete(server + stamp + ".zip");
             }
             catch (Exception e)
             {

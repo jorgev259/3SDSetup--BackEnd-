@@ -21,10 +21,6 @@ namespace sdHelper.Controllers
             var req_data = JsonConvert.DeserializeObject<dynamic>(ver);
             var step_list = JsonConvert.DeserializeObject<dynamic>(step);
 
-            //var r = new Random();
-            //int A = r.Next(1000, 5000);
-            //string stamp = A.ToString("X");
-
             Directory.CreateDirectory(HttpContext.Current.Server.MapPath("~/temp/" + stamp));
             Directory.CreateDirectory(HttpContext.Current.Server.MapPath("~/temp/" + "downloads" + stamp));
 
@@ -48,9 +44,6 @@ namespace sdHelper.Controllers
             var response = strap.pack(stamp);
 
             return response;
-
-           // File.Delete(HttpContext.Current.Server.MapPath("~/temp/" + stamp));
-           // File.Delete(HttpContext.Current.Server.MapPath("~/temp/" + stamp + ".zip"));
 
         }
     }

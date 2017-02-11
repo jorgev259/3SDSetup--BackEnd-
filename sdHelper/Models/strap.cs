@@ -354,7 +354,8 @@ namespace sdHelper.Models
         //Get latest release url from github repo
         public static async Task<String> repo_url(string author, string repo, Object file)
         {
-            //Add your own client github credentials
+            var client = new GitHubClient(new Octokit.ProductHeaderValue("3SDSetup-Helper"));
+            var tokenAuth = new Credentials("8e6c7a252a40500c661328184520dff03c12ca8a");
             client.Credentials = tokenAuth;
 
             var releases = await client.Repository.Release.GetAll(author, repo);
